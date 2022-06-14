@@ -6,6 +6,6 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY . .
+COPY edit-vrising-name.py .
 
 ENTRYPOINT [ "python", "edit-vrising-name.py", "/saves" ]

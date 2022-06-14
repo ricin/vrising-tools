@@ -22,7 +22,7 @@ def editCharacterName(bin_file, old_byte_data, new_byte_data):
   occurrences = list(occurrences)
   totaloccurrences = len(occurrences)
 
-  print(f'{Fore.YELLOW}Found{Style.RESET_ALL} {Fore.GREEN}{totaloccurrences} {Fore.YELLOW}occurrences{Style.RESET_ALL}')
+  print(f'{Fore.YELLOW}Found{Style.RESET_ALL} {Fore.GREEN}{totaloccurrences} {Fore.YELLOW}occurrence(s){Style.RESET_ALL}')
 
   for i in range(0, len(occurrences)):
 
