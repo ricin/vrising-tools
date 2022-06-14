@@ -5,13 +5,20 @@ from bitstring import ConstBitStream
 from colorama import Fore
 from colorama import Style
 
+def pair(arg):
+    return [str(s) for s in arg.split(':')]
+
 def pad(text, block_size):  
     pad_size = block_size - len(text) % block_size
     padded = text + chr(0)*pad_size
     return bytes(bytearray(padded, 'utf-8'))
 
-def editCharacterName(bin_file, old_byte_data, new_byte_data):
-  new_len = len(new_name)
+def editCharacterName(bin_file, old, new):
+  
+  old_byte_data = pad(old, 20)
+  new_byte_data = pad(new, 20)
+
+  new_len = len(new)
   fileSizeBytes = os.path.getsize(bin_file)
 
   print(f'{Fore.GREEN}Searching{Style.RESET_ALL} {Fore.LIGHTCYAN_EX}{bin_file} {Fore.LIGHTBLUE_EX}{fileSizeBytes/float(1<<20):,.2f} MB{Fore.GREEN} ...{Style.RESET_ALL}')
@@ -51,31 +58,30 @@ def editCharacterName(bin_file, old_byte_data, new_byte_data):
 
   savefile.close()
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("save_path", help='Path to AutoSave_? directory containing save files to edit')
-    parser.add_argument('old_name', help='old name to replace')
-    parser.add_argument('new_name', help='new name')
+    parser.add_argument('rename_pairs', type=pair, nargs='+')
     args = parser.parse_args()
-
-    old_name = args.old_name
-    new_name = args.new_name
-
-    old_byte_data = pad(old_name, 20)
-    new_byte_data = pad(new_name, 20)
 
     if not os.path.exists(args.save_path):
       sys.exit(f'{Fore.RED}{args.save_path} does not exist!{Style.RESET_ALL}')
-    if (len(new_name) > 20):
-      sys.exit(f'{Fore.RED}Character names cannot exceed 20 characters{Style.RESET_ALL}')
 
     filelist = glob.glob(args.save_path + '/SerializationJob_*.save')
 
     if not filelist:
       sys.exit(f'{Fore.RED}{args.save_path} does not contain any SerializationJob_*.save files to edit!{Style.RESET_ALL}')
 
-    print(f'{Fore.GREEN}Changing name from {Fore.LIGHTCYAN_EX}{old_name} {Fore.GREEN}to {Fore.LIGHTCYAN_EX}{new_name}{Fore.GREEN} in save files.{Style.RESET_ALL}')
+    for old,new in args.rename_pairs:
+
+      if (len(new) > 20):
+        sys.exit(f'{Fore.RED}Character names cannot exceed 20 characters{Style.RESET_ALL}')
+
+      print(f'{Fore.GREEN}Changing name from {Fore.LIGHTCYAN_EX}{old} {Fore.GREEN}to {Fore.LIGHTCYAN_EX}{new}{Fore.GREEN} in save files.{Style.RESET_ALL}')
     
-    for f in filelist:
-      editCharacterName(f, old_byte_data, new_byte_data)
+      for f in filelist:
+        editCharacterName(f, old, new)
+      
+      print(f'{Fore.BLUE}======{Style.RESET_ALL}')

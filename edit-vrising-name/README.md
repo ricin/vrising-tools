@@ -14,10 +14,10 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 
 ## Run example
 ```
-python3 edit-vrising-name.py F:\SteamLibrary\steamapps\common\VRising\VRising_Server\save-data\Saves\v1\world1\AutoSave_1 old_name new_name
+python3 edit-vrising-name.py F:\SteamLibrary\steamapps\common\VRising\VRising_Server\save-data\Saves\v1\world1\AutoSave_1 old_name:new_name old_name2:new_name2 old_name3:new_name3
 ```
 
 ## Run example via docker
 ```
-docker run -it --rm -v /path/to/autosaves:/saves ricin/edit-vrising-name old_name new_name
+docker run -it --rm -v /path/to/autosaves:/saves ricin/edit-vrising-name old_name:new_name old_name2:new_name2 old_name3:new_name3
 ```
