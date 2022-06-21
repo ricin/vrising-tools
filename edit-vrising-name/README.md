@@ -14,6 +14,8 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 
 ## Run example
 ```
+pip install -r requirements.txt
+
 python3 edit-vrising-name.py F:\SteamLibrary\steamapps\common\VRising\VRising_Server\save-data\Saves\v1\world1\AutoSave_1 old_name:new_name old_name2:new_name2 old_name3:new_name3
 ```
 
