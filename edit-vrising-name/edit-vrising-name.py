@@ -76,8 +76,10 @@ if __name__ == '__main__':
 
     for old,new in args.rename_pairs:
 
-      if (len(new) > 20):
-        sys.exit(f'{Fore.RED}Character names cannot exceed 20 characters{Style.RESET_ALL}')
+      if (len(new) > 20 or len(old) > 20):
+        print(f'  {old} is {len(old)} characters')
+        print(f'  {new} is {len(new)} characters')
+        sys.exit(f'{Fore.RED}Character names cannot exceed 20 characters.{Style.RESET_ALL}')
 
       print(f'{Fore.GREEN}Changing name from {Fore.LIGHTCYAN_EX}{old} {Fore.GREEN}to {Fore.LIGHTCYAN_EX}{new}{Fore.GREEN} in save files.{Style.RESET_ALL}')
     
