@@ -44,6 +44,9 @@ def editCharacterName(bin_file, old, new):
 
     if data != old_byte_data:
       continue
+    
+    if old_len != len(old):
+      continue
 
     print(f'\t{Fore.BLUE}---{Style.RESET_ALL}') 
     print(f'\t{Fore.GREEN}Found {Fore.LIGHTCYAN_EX}{data} {Fore.GREEN}at {Fore.YELLOW}{occurrenceOffset} {Fore.WHITE}({Fore.LIGHTCYAN_EX}{int(old_len)}{Style.RESET_ALL})')
@@ -75,6 +78,12 @@ if __name__ == '__main__':
       sys.exit(f'{Fore.RED}{args.save_path} does not contain any SerializationJob_*.save files to edit!{Style.RESET_ALL}')
 
     for old,new in args.rename_pairs:
+
+      if (len(new) < 2 or len(old) < 2):
+        print(f'  {Fore.YELLOW}{old}{Fore.GREEN} is {Fore.LIGHTCYAN_EX}{len(old)}{Fore.GREEN} characters{Style.RESET_ALL}')
+        print(f'  {Fore.YELLOW}{new}{Fore.GREEN} is {Fore.LIGHTCYAN_EX}{len(new)}{Fore.GREEN} characters{Style.RESET_ALL}')
+        print(f'{Fore.RED}Character names must be at least 2 characters. Skipping pair.{Style.RESET_ALL}')
+        continue
 
       if (len(new) > 20 or len(old) > 20):
         print(f'  {Fore.YELLOW}{old}{Fore.GREEN} is {Fore.LIGHTCYAN_EX}{len(old)}{Fore.GREEN} characters{Style.RESET_ALL}')

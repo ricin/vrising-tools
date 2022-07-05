@@ -1,0 +1,7 @@
+build/
+lib/
+*.pyd
+*.pyc
+*.dll
+*.zip
+*.ctypes
