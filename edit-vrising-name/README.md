@@ -19,6 +19,11 @@ pip install -r requirements.txt
 python3 edit-vrising-name.py F:\SteamLibrary\steamapps\common\VRising\VRising_Server\save-data\Saves\v1\world1\AutoSave_1 old_name:new_name old_name2:new_name2 old_name3:new_name3
 ```
 
+## Run example (Windows)
+* Download latest [release](https://github.com/ricin/vrising-tools/releases)
+* Run and extract to a location
+* Run `edit-vrising-name.exe` within extracted directory at the command prompt.
+
 ## Run example via docker
 ```
 docker run -it --rm -v /path/to/autosaves:/saves ricin/edit-vrising-name old_name:new_name old_name2:new_name2 old_name3:new_name3
