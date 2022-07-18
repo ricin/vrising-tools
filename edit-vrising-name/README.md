@@ -8,8 +8,8 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 
 ## Steps
 - Shut down your server
-- **Make a backup of the latest AutoSave_? directory**
-- Run this and point it to the latest AutoSave_? directory
+- **Make a backup of the latest AutoSave_* directory**
+- Run this and point it to the latest AutoSave_* directory
 - Restart server
 
 ## Run example

@@ -9,7 +9,7 @@ def pair(arg):
     return [str(s) for s in arg.split(':')]
 
 def pad(text, block_size):  
-    pad_size = block_size - len(text) % block_size
+    pad_size = block_size - len(text.encode('utf-8')) % block_size
     padded = text + chr(0)*pad_size
     return bytes(bytearray(padded, 'utf-8'))
 
@@ -18,7 +18,10 @@ def editCharacterName(bin_file, old, new):
   old_byte_data = pad(old, 20)
   new_byte_data = pad(new, 20)
 
-  new_len = len(new)
+  old_n = old.encode('utf-8')
+  new_n = new.encode('utf-8')
+
+  new_len = len(new_n)  
   fileSizeBytes = os.path.getsize(bin_file)
 
   print(f'{Fore.GREEN}Searching{Style.RESET_ALL} {Fore.LIGHTCYAN_EX}{bin_file} {Fore.LIGHTBLUE_EX}{fileSizeBytes/float(1<<20):,.2f} MB{Fore.GREEN} ...{Style.RESET_ALL}')
@@ -43,9 +46,15 @@ def editCharacterName(bin_file, old, new):
     data = s.read('bytes:20')
 
     if data != old_byte_data:
+      if args.verbose:
+        print(f'\t{Fore.RED}Skipping old name mismatch{Style.RESET_ALL}')
+        print(f'\t- {Fore.RED}Entered: {Fore.LIGHTCYAN_EX}{old_byte_data}{Style.RESET_ALL}')
+        print(f'\t- {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{data}{Style.RESET_ALL}')
       continue
     
-    if old_len != len(old):
+    if old_len != len(old_n):
+      if args.verbose:
+        print(f'\t{Fore.RED}Skipipng old name length mismatch | Entered: {Fore.LIGHTCYAN_EX}{len(old_n)} {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{old_len}{Style.RESET_ALL}')
       continue
 
     print(f'\t{Fore.BLUE}---{Style.RESET_ALL}') 
@@ -64,9 +73,10 @@ def editCharacterName(bin_file, old, new):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("save_path", help='Path to AutoSave_? directory containing save files to edit')
-    parser.add_argument('rename_pairs', type=pair, nargs='+')
+    parser = argparse.ArgumentParser(description='Edit character names within V Rising save files')
+    parser.add_argument("save_path", help='Path to AutoSave_* directory containing save files to edit')
+    parser.add_argument('rename_pair', type=pair, nargs='+', help='Pair of old and new name in the form of old_name:new_name')
+    parser.add_argument('-v', '--verbose', default=False, action='store_true', help='More verbose output with debug information')
     args = parser.parse_args()
 
     if not os.path.exists(args.save_path):
@@ -77,7 +87,7 @@ if __name__ == '__main__':
     if not filelist:
       sys.exit(f'{Fore.RED}{args.save_path} does not contain any SerializationJob_*.save files to edit!{Style.RESET_ALL}')
 
-    for old,new in args.rename_pairs:
+    for old,new in args.rename_pair:
 
       if (len(new) < 2 or len(old) < 2):
         print(f'  {Fore.YELLOW}{old}{Fore.GREEN} is {Fore.LIGHTCYAN_EX}{len(old)}{Fore.GREEN} characters{Style.RESET_ALL}')
