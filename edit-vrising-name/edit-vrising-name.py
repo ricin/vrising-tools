@@ -19,13 +19,21 @@ def m_gunzip(file):
   with gzip.open(file, 'rb') as f_in:
     with open(file[:-3], 'wb') as f_out:
       shutil.copyfileobj(f_in, f_out)
-  os.remove(file)
+  try:
+    os.remove(file)
+  except:
+    print(f'{Fore.RED}Failed to remove {Fore.LIGHTCYAN_EX}{file}{Fore.RED}.{Style.RESET_ALL}')
+    pass
 
 def m_gzip(file):
   with open(file, 'rb') as f_in:
     with gzip.open(file + '.gz', 'wb') as f_out:
       shutil.copyfileobj(f_in, f_out)
-  os.remove(file)
+  try:
+    os.remove(file)
+  except:
+    print(f'{Fore.RED}Failed to remove {Fore.LIGHTCYAN_EX}{file}{Fore.RED}.{Style.RESET_ALL}')
+    pass
 
 def is_gzip(file):
   with open(file, 'rb') as f:
@@ -54,53 +62,51 @@ def editCharacterName(bin_file, old, new):
 
   print(f'{Fore.GREEN}Searching{Style.RESET_ALL} {Fore.LIGHTCYAN_EX}{s_file} {Fore.LIGHTBLUE_EX}{fileSizeBytes/float(1<<20):,.2f} MB{Fore.GREEN} ...{Style.RESET_ALL}')
 
-  savefile = open(s_file, 'r+b')
-  s = ConstBitStream(savefile)
-  occurrences = s.findall(old_byte_data, bytealigned=True)
-  occurrences = list(occurrences)
-  totaloccurrences = len(occurrences)
+  with open(s_file, 'r+b') as savefile:
+    s = ConstBitStream(savefile)
+    occurrences = s.findall(old_byte_data, bytealigned=True)
+    occurrences = list(occurrences)
+    totaloccurrences = len(occurrences)
 
-  print(f'{Fore.YELLOW}Found{Style.RESET_ALL} {Fore.GREEN}{totaloccurrences} {Fore.YELLOW}occurrence(s){Style.RESET_ALL}')
-  
-  if totaloccurrences == 0:
-    print(f'{Fore.RED}No occurrences found for {Fore.LIGHTCYAN_EX}{old}{Fore.RED}. Skipping.{Style.RESET_ALL}')
-    return
-
-  for i in range(0, len(occurrences)):
-
-    occurrenceOffset = (hex(int(occurrences[i]/8)))
-
-    s.bitpos = occurrences[i]
-    s.bytepos -= 2
-    data = s.read('int:8')
-    old_len = int(data)
-    s.bitpos = occurrences[i]
-    data = s.read('bytes:20')
-
-    if data != old_byte_data:
-      if args.verbose:
-        print(f'\t{Fore.RED}Skipping old name mismatch{Style.RESET_ALL}')
-        print(f'\t- {Fore.RED}Entered: {Fore.LIGHTCYAN_EX}{old_byte_data}{Style.RESET_ALL}')
-        print(f'\t- {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{data}{Style.RESET_ALL}')
-      continue
+    print(f'{Fore.YELLOW}Found{Style.RESET_ALL} {Fore.GREEN}{totaloccurrences} {Fore.YELLOW}occurrence(s){Style.RESET_ALL}')
     
-    if old_len != len(old_n):
-      if args.verbose:
-        print(f'\t{Fore.RED}Skipipng old name length mismatch | Entered: {Fore.LIGHTCYAN_EX}{len(old_n)} {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{old_len}{Style.RESET_ALL}')
-      continue
+    if totaloccurrences == 0:
+      print(f'{Fore.RED}No occurrences found for {Fore.LIGHTCYAN_EX}{old}{Fore.RED}. Skipping.{Style.RESET_ALL}')
+      return
 
-    print(f'\t{Fore.BLUE}---{Style.RESET_ALL}') 
-    print(f'\t{Fore.GREEN}Found {Fore.LIGHTCYAN_EX}{data} {Fore.GREEN}at {Fore.YELLOW}{occurrenceOffset} {Fore.WHITE}({Fore.LIGHTCYAN_EX}{int(old_len)}{Style.RESET_ALL})')
-    print(f'\t{Fore.GREEN}Writing {Fore.LIGHTCYAN_EX}{new_byte_data} {Fore.GREEN}to {Fore.YELLOW}{occurrenceOffset} {Fore.WHITE}({Fore.LIGHTCYAN_EX}{int(new_len)}{Style.RESET_ALL})')
+    for i in range(0, len(occurrences)):
 
-    savefile.seek(int(occurrences[i]/8), 0)
-    print(f'\t{Fore.LIGHTCYAN_EX}** wrote new name at {Fore.YELLOW}{hex(int(savefile.tell()))}{Style.RESET_ALL}')
-    savefile.write(new_byte_data)
-    savefile.seek(int(occurrences[i]/8)-2, 0)
-    print(f'\t{Fore.LIGHTCYAN_EX}** wrote new length at {Fore.YELLOW}{hex(int(savefile.tell()))}{Style.RESET_ALL}')
-    savefile.write(bytes(chr(new_len), 'utf-8'))
+      occurrenceOffset = (hex(int(occurrences[i]/8)))
 
-  savefile.close()
+      s.bitpos = occurrences[i]
+      s.bytepos -= 2
+      data = s.read('int:8')
+      old_len = int(data)
+      s.bitpos = occurrences[i]
+      data = s.read('bytes:20')
+
+      if data != old_byte_data:
+        if args.verbose:
+          print(f'\t{Fore.RED}Skipping old name mismatch{Style.RESET_ALL}')
+          print(f'\t- {Fore.RED}Entered: {Fore.LIGHTCYAN_EX}{old_byte_data}{Style.RESET_ALL}')
+          print(f'\t- {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{data}{Style.RESET_ALL}')
+        continue
+      
+      if old_len != len(old_n):
+        if args.verbose:
+          print(f'\t{Fore.RED}Skipipng old name length mismatch | Entered: {Fore.LIGHTCYAN_EX}{len(old_n)} {Fore.RED}Found: {Fore.LIGHTCYAN_EX}{old_len}{Style.RESET_ALL}')
+        continue
+
+      print(f'\t{Fore.BLUE}---{Style.RESET_ALL}') 
+      print(f'\t{Fore.GREEN}Found {Fore.LIGHTCYAN_EX}{data} {Fore.GREEN}at {Fore.YELLOW}{occurrenceOffset} {Fore.WHITE}({Fore.LIGHTCYAN_EX}{int(old_len)}{Style.RESET_ALL})')
+      print(f'\t{Fore.GREEN}Writing {Fore.LIGHTCYAN_EX}{new_byte_data} {Fore.GREEN}to {Fore.YELLOW}{occurrenceOffset} {Fore.WHITE}({Fore.LIGHTCYAN_EX}{int(new_len)}{Style.RESET_ALL})')
+
+      savefile.seek(int(occurrences[i]/8), 0)
+      print(f'\t{Fore.LIGHTCYAN_EX}** wrote new name at {Fore.YELLOW}{hex(int(savefile.tell()))}{Style.RESET_ALL}')
+      savefile.write(new_byte_data)
+      savefile.seek(int(occurrences[i]/8)-2, 0)
+      print(f'\t{Fore.LIGHTCYAN_EX}** wrote new length at {Fore.YELLOW}{hex(int(savefile.tell()))}{Style.RESET_ALL}')
+      savefile.write(bytes(chr(new_len), 'utf-8'))
 
   print(f'{Fore.GREEN}Gzipping new save file{Style.RESET_ALL}')
   m_gzip(s_file)
