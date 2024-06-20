@@ -1,17 +1,43 @@
 #!/bin/env python3
 
+import gzip
+import shutil
 import os, sys, glob, argparse
 from bitstring import ConstBitStream
 from colorama import Fore
 from colorama import Style
 
 def pair(arg):
-    return [str(s) for s in arg.split(':')]
+  return [str(s) for s in arg.split(':')]
 
 def pad(text, block_size):  
-    pad_size = block_size - len(text.encode('utf-8')) % block_size
-    padded = text + chr(0)*pad_size
-    return bytes(bytearray(padded, 'utf-8'))
+  pad_size = block_size - len(text.encode('utf-8')) % block_size
+  padded = text + chr(0)*pad_size
+  return bytes(bytearray(padded, 'utf-8'))
+
+def m_gunzip(file):
+  with gzip.open(file, 'rb') as f_in:
+    with open(file[:-3], 'wb') as f_out:
+      shutil.copyfileobj(f_in, f_out)
+  os.remove(file)
+
+def m_gzip(file):
+  with open(file, 'rb') as f_in:
+    with gzip.open(file + '.gz', 'wb') as f_out:
+      shutil.copyfileobj(f_in, f_out)
+  os.remove(file)
+
+def is_gzip(file):
+  with open(file, 'rb') as f:
+    return f.read(2) == b'\x1f\x8b'
+
+def m_unzip(file):
+  if is_gzip(file):
+    print(f'{Fore.GREEN}Unzipping {Fore.LIGHTCYAN_EX}{file}{Fore.GREEN}...{Style.RESET_ALL}')
+    m_gunzip(file)
+    return file[:-3]
+  else:
+    return file
 
 def editCharacterName(bin_file, old, new):
   
@@ -22,17 +48,23 @@ def editCharacterName(bin_file, old, new):
   new_n = new.encode('utf-8')
 
   new_len = len(new_n)  
-  fileSizeBytes = os.path.getsize(bin_file)
+  s_file = m_unzip(bin_file)
 
-  print(f'{Fore.GREEN}Searching{Style.RESET_ALL} {Fore.LIGHTCYAN_EX}{bin_file} {Fore.LIGHTBLUE_EX}{fileSizeBytes/float(1<<20):,.2f} MB{Fore.GREEN} ...{Style.RESET_ALL}')
+  fileSizeBytes = os.path.getsize(s_file)
 
-  savefile = open(bin_file, 'r+b')
+  print(f'{Fore.GREEN}Searching{Style.RESET_ALL} {Fore.LIGHTCYAN_EX}{s_file} {Fore.LIGHTBLUE_EX}{fileSizeBytes/float(1<<20):,.2f} MB{Fore.GREEN} ...{Style.RESET_ALL}')
+
+  savefile = open(s_file, 'r+b')
   s = ConstBitStream(savefile)
   occurrences = s.findall(old_byte_data, bytealigned=True)
   occurrences = list(occurrences)
   totaloccurrences = len(occurrences)
 
   print(f'{Fore.YELLOW}Found{Style.RESET_ALL} {Fore.GREEN}{totaloccurrences} {Fore.YELLOW}occurrence(s){Style.RESET_ALL}')
+  
+  if totaloccurrences == 0:
+    print(f'{Fore.RED}No occurrences found for {Fore.LIGHTCYAN_EX}{old}{Fore.RED}. Skipping.{Style.RESET_ALL}')
+    return
 
   for i in range(0, len(occurrences)):
 
@@ -70,11 +102,15 @@ def editCharacterName(bin_file, old, new):
 
   savefile.close()
 
+  print(f'{Fore.GREEN}Gzipping new save file{Style.RESET_ALL}')
+  m_gzip(s_file)
+  print(f'{Fore.GREEN}Wrote new save file to {Fore.LIGHTCYAN_EX}{s_file}.gz{Fore.GREEN}.{Style.RESET_ALL}')
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Edit character names within V Rising save files')
-    parser.add_argument("save_path", help='Path to AutoSave_* directory containing save files to edit')
+    parser.add_argument("save_path", help='Path to directory containing save files to edit')
+    parser.add_argument("-f", dest='save_file', nargs='?', action='store', help='Path to specific file to edit')
     parser.add_argument('rename_pair', type=pair, nargs='+', help='Pair of old and new name in the form of old_name:new_name')
     parser.add_argument('-v', '--verbose', default=False, action='store_true', help='More verbose output with debug information')
     args = parser.parse_args()
@@ -82,10 +118,17 @@ if __name__ == '__main__':
     if not os.path.exists(args.save_path):
       sys.exit(f'{Fore.RED}{args.save_path} does not exist!{Style.RESET_ALL}')
 
-    filelist = glob.glob(args.save_path + '/SerializationJob_*.save')
+    if args.save_file:
+      if not os.path.isfile(args.save_file):
+          sys.exit(f'{Fore.RED}{args.save_file} does not exist in {args.save_path}!{Style.RESET_ALL}')
+      filelist = glob.glob(args.save_path + '/' + args.save_file)
+    else: 
+      filelist = glob.glob(args.save_path + '/AutoSave_*.save.gz')
+      if not filelist:
+        filelist = glob.glob(args.save_path + '/AutoSave_*.save')
 
     if not filelist:
-      sys.exit(f'{Fore.RED}{args.save_path} does not contain any SerializationJob_*.save files to edit!{Style.RESET_ALL}')
+      sys.exit(f'{Fore.RED}{args.save_path} does not contain any AutoSave_*.save.gz or AutoSave_*.save files to edit!{Style.RESET_ALL}')
 
     for old,new in args.rename_pair:
 
