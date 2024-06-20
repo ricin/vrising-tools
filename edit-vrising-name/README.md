@@ -13,6 +13,23 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 - Run this and point it to the saves directory that contains *.save.gz files
 - Restart server
 
+
+## Usage
+```
+usage: edit-vrising-name.py [-h] [-f [SAVE_FILE]] [-v] save_path rename_pair [rename_pair ...]
+
+Edit character names within V Rising save files
+
+positional arguments:
+  save_path       Path to directory containing save files to edit
+  rename_pair     Pair of old and new name in the form of old_name:new_name
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -f [SAVE_FILE]  Path to specific file to edit
+  -v, --verbose   More verbose output with debug information
+```
+
 ## Run example
 ```
 pip install -r requirements.txt
