@@ -26,7 +26,7 @@ positional arguments:
 
 optional arguments:
   -h, --help      show this help message and exit
-  -f [SAVE_FILE]  Path to specific file to edit
+  -f [SAVE_FILE]  Specific file to edit (in save_path directory)
   -v, --verbose   More verbose output with debug information
 ```
 
