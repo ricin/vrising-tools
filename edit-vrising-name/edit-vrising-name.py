@@ -7,6 +7,8 @@ from bitstring import ConstBitStream
 from colorama import Fore
 from colorama import Style
 
+compress = False
+
 def pair(arg):
   return [str(s) for s in arg.split(':')]
 
@@ -40,11 +42,14 @@ def is_gzip(file):
     return f.read(2) == b'\x1f\x8b'
 
 def m_unzip(file):
+  global compress
   if is_gzip(file):
-    print(f'{Fore.GREEN}Unzipping {Fore.LIGHTCYAN_EX}{file}{Fore.GREEN}...{Style.RESET_ALL}')
+    print(f'{Fore.GREEN}Decompressing {Fore.LIGHTCYAN_EX}{file}{Fore.GREEN} ...{Style.RESET_ALL}')
     m_gunzip(file)
+    compress = True
     return file[:-3]
   else:
+    compress = False
     return file
 
 def editCharacterName(bin_file, old, new):
@@ -72,6 +77,9 @@ def editCharacterName(bin_file, old, new):
     
     if totaloccurrences == 0:
       print(f'{Fore.RED}No occurrences found for {Fore.LIGHTCYAN_EX}{old}{Fore.RED}. Skipping.{Style.RESET_ALL}')
+      if compress or args.force_compress:
+        print(f'{Fore.GREEN}Compressing ...{Style.RESET_ALL}')
+        m_gzip(s_file)
       return
 
     for i in range(0, len(occurrences)):
@@ -108,16 +116,19 @@ def editCharacterName(bin_file, old, new):
       print(f'\t{Fore.LIGHTCYAN_EX}** wrote new length at {Fore.YELLOW}{hex(int(savefile.tell()))}{Style.RESET_ALL}')
       savefile.write(bytes(chr(new_len), 'utf-8'))
 
-  print(f'{Fore.GREEN}Gzipping new save file{Style.RESET_ALL}')
-  m_gzip(s_file)
-  print(f'{Fore.GREEN}Wrote new save file to {Fore.LIGHTCYAN_EX}{s_file}.gz{Fore.GREEN}.{Style.RESET_ALL}')
+  if compress or args.force_compress:
+    print(f'{Fore.GREEN}Compressing new save file ...{Style.RESET_ALL}')
+    m_gzip(s_file)
+    print(f'{Fore.GREEN}Wrote new save file to {Fore.LIGHTCYAN_EX}{s_file}.gz{Fore.GREEN}.{Style.RESET_ALL}')
+
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Edit character names within V Rising save files')
     parser.add_argument("save_path", help='Path to directory containing save files to edit')
-    parser.add_argument("-f", dest='save_file', nargs='?', action='store', help='Path to specific file to edit')
+    parser.add_argument('-f', '--file', dest='save_file', nargs='?', action='store', help='Path to specific file to edit')
     parser.add_argument('rename_pair', type=pair, nargs='+', help='Pair of old and new name in the form of old_name:new_name')
+    parser.add_argument('-c', '--compress', dest='force_compress', default=False, action='store_true', help='Compress save file after editing')
     parser.add_argument('-v', '--verbose', default=False, action='store_true', help='More verbose output with debug information')
     args = parser.parse_args()
 
@@ -130,8 +141,7 @@ if __name__ == '__main__':
       filelist = glob.glob(args.save_path + '/' + args.save_file)
     else: 
       filelist = glob.glob(args.save_path + '/AutoSave_*.save.gz')
-      if not filelist:
-        filelist = glob.glob(args.save_path + '/AutoSave_*.save')
+      filelist.extend(glob.glob(args.save_path + '/AutoSave_*.save'))
 
     if not filelist:
       sys.exit(f'{Fore.RED}{args.save_path} does not contain any AutoSave_*.save.gz or AutoSave_*.save files to edit!{Style.RESET_ALL}')
