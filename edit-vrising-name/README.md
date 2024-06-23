@@ -16,18 +16,20 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 
 ## Usage
 ```
-usage: edit-vrising-name.py [-h] [-f [SAVE_FILE]] [-v] save_path rename_pair [rename_pair ...]
+usage: edit-vrising-name.py [-h] [-f [SAVE_FILE]] [-c] [-v] save_path rename_pair [rename_pair ...]
 
 Edit character names within V Rising save files
 
 positional arguments:
-  save_path       Path to directory containing save files to edit
-  rename_pair     Pair of old and new name in the form of old_name:new_name
+  save_path             Path to directory containing save files to edit
+  rename_pair           Pair of old and new name in the form of old_name:new_name
 
-optional arguments:
-  -h, --help      show this help message and exit
-  -f [SAVE_FILE]  Specific file to edit (in save_path directory)
-  -v, --verbose   More verbose output with debug information
+options:
+  -h, --help            show this help message and exit
+  -f [SAVE_FILE], --file [SAVE_FILE]
+                        Path to specific file to edit
+  -c, --compress        Compress save file after editing
+  -v, --verbose         More verbose output with debug information
 ```
 
 ## Run example
