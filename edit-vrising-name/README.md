@@ -10,7 +10,7 @@ I have tested this, but I can't guarantee it won't mess up your save files.
 
 - Shut down your server
 - **Make a backup of your saves directory**
-- Run this and point it to the saves directory that contains *.save.gz files
+- Run this and point it to the saves directory that contains `*.save.gz` or `*.save` files
 - Restart server
 
 
