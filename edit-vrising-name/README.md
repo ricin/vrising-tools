@@ -6,7 +6,8 @@ This will search for all occurrences of a name in the save files and change them
 
 I have tested this, but I can't guarantee it won't mess up your save files.
 
-## Note (2026-02-06): I've tested this on a new server created today with a fresh autosave and it still works as expected with v4 save files.
+## Notes: 
+**2026-02-06**: I've tested this on a new server created today with a fresh autosave and it still works as expected with v4 save files.
 
 ## Steps
 
